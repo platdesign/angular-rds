@@ -1,0 +1,20 @@
+{
+  "name": "reactive-collection",
+  "description": "A project by platdesign.de",
+  "author": "Christian Blaschke <mail@platdesign.de>",
+  "version": "0.0.0",
+  "dependencies": {
+    "shoe": "0.0.15",
+    "sockjs": "^0.3.15"
+  },
+  "repository": "",
+  "devDependencies": {
+    "angular": "^1.3.15",
+    "baconjs": "^0.7.53",
+    "extend": "^2.0.0",
+    "gulp": "^3.8.11",
+    "jquery": "^2.1.3",
+    "pd-gulp-js": "^0.1.2",
+    "sockjs-client": "^1.0.0-beta.12"
+  }
+}
