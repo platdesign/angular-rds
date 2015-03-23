@@ -13,14 +13,14 @@ var RDS = require('./DS');
 var app = angular.module('app', [RDS.name]);
 
 
-var sockjs = require('sockjs-client');
+
+var socket = require('socket.io-client')('http://localhost:3000');
+
+
 
 
 app.factory('backend', ['$q', 'RDS', function($q, RDS){
 	var backend = RDS.createStore();
-
-	var socket = sockjs('http://localhost:4000/backend');
-
 
 
 
@@ -29,12 +29,13 @@ app.factory('backend', ['$q', 'RDS', function($q, RDS){
 		request: function(payload) {
 			var body = payload.data;
 
-			socket.send(angular.toJson(payload));
+			var defer = $q.defer();
 
-			return $q.when({
-				id: body.id || Date.now(),
-				name: body.name
+			socket.emit('data', JSON.parse(angular.toJson(payload)), function(res) {
+				defer.resolve(res);
 			});
+
+			return defer.promise;
 		},
 
 		notify: function(payload) {
@@ -43,9 +44,10 @@ app.factory('backend', ['$q', 'RDS', function($q, RDS){
 
 		notifier: function(send) {
 
-			socket.onmessage = function(message) {
-				send(JSON.parse(message.data));
-			};
+			socket.on('data', function(message) {
+				console.log(message)
+				send(message);
+			});
 
 /*			setInterval(function() {
 
@@ -73,6 +75,10 @@ app.factory('backend', ['$q', 'RDS', function($q, RDS){
 app.run(['$rootScope', 'backend', function($scope, backend) {
 
 	$scope.items = backend.collection('/projects');
+
+	$scope.items.subscribe();
+
+
 	$scope.bItems = backend.collection('/projects');
 
 }]);

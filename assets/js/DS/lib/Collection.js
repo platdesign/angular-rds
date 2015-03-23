@@ -26,6 +26,18 @@ module.exports = ['$rootScope', '$q', function($rootScope, $q) {
 				});
 			}
 
+			if(e.method === 'destroy') {
+				$rootScope.$apply(function() {
+					var model = collection.filter(function(item) {
+						return e.data.id === item.id;
+					})[0];
+
+					if(model) {
+						collection.removeModel(model);
+					}
+				})
+			}
+
 		});
 
 
@@ -76,6 +88,7 @@ module.exports = ['$rootScope', '$q', function($rootScope, $q) {
 
 
 		collection._request = function(method, data) {
+			data = data || {};
 
 			var defer = $q.defer();
 
@@ -90,6 +103,17 @@ module.exports = ['$rootScope', '$q', function($rootScope, $q) {
 
 			return defer.promise;
 		};
+
+		collection.subscribe = function() {
+			this._request('subscribe').then(function(data) {
+
+				Object.keys(data).forEach(function(key) {
+					collection._addAsModelOrMerge(data[key]);
+				});
+
+			});
+		};
+
 
 
 		collection.create = function(attrs) {
@@ -116,13 +140,17 @@ module.exports = ['$rootScope', '$q', function($rootScope, $q) {
 
 		};
 
-		collection.destroyModel = function(model) {
-
+		collection.removeModel = function(model) {
 			var index = this.indexOf(model);
 
 			if(index > -1) {
 				this.splice(index, 1);
 			}
+		};
+
+		collection.destroyModel = function(model) {
+
+			this.removeModel(model);
 
 			return this._request('destroy', model);
 		};
